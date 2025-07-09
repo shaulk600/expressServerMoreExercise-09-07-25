@@ -1,12 +1,12 @@
+import express from "express";
+import {User} from "../data/classUsers.js";
+
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const file = path.join(__dirname, '../data/users.txt');
-
-
-import express from "express";
 
 export async function getAllUsers(req, res) {
     try {
@@ -18,14 +18,17 @@ export async function getAllUsers(req, res) {
     }
 }
 
-export async function addNewUser(req, res) {
+export async function setNewUser(req, res) {
+    const userId = req.body.id;
     const username = req.body.name;
     if (!username) return res.status(400).send('Name is required');
+    if (!userId) return res.status(400).send('Id is required');
+    const newData = new User(userId,username);
 
     try {
         const data = await fs.readFile(file, 'utf-8');
         const users = data ? JSON.parse(data) : [];
-        users.push(username);
+        users.push(JSON.stringify(newData));
         await fs.writeFile(file, JSON.stringify(users));
         res.status(201).json({ message: 'User added', users });
     } catch (err) {
@@ -37,13 +40,13 @@ export async function getUserByID(req, res) {
     try {
         const data = await fs.readFile(file, 'utf-8');
         const users = data ? JSON.parse(data) : [];
-        if(users[index] !== undefined){
+        if (users[index] !== undefined) {
             res.status(200).json(users[index]);
         }
-        else{
-            res.status(404).json({msg: 'User not found'});
+        else {
+            res.status(404).json({ msg: 'User not found' });
         }
-        
+
     } catch (err) {
         res.status(500).send('Error reading users');
     }
