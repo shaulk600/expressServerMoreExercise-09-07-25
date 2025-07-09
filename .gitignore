@@ -1,0 +1,9 @@
+
+.env
+
+package-lock.json
+
+vs/
+bin/
+
+node_modules/
