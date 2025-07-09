@@ -1,12 +1,12 @@
 import express from "express";
-import {User} from "../data/classUsers.js";
+import { User } from "../data/classUsers.js";
 
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const file = path.join(__dirname, '../data/users.txt');
+const file = path.join(__dirname, '../data/db_user.txt');
 
 export async function getAllUsers(req, res) {
     try {
@@ -15,6 +15,7 @@ export async function getAllUsers(req, res) {
         res.status(200).json(users);
     } catch (err) {
         res.status(500).send('Error reading users');
+        console.log('worning !! - server error: ', err);
     }
 }
 
@@ -23,7 +24,7 @@ export async function setNewUser(req, res) {
     const username = req.body.name;
     if (!username) return res.status(400).send('Name is required');
     if (!userId) return res.status(400).send('Id is required');
-    const newData = new User(userId,username);
+    const newData = new User(userId, username);
 
     try {
         const data = await fs.readFile(file, 'utf-8');
@@ -33,22 +34,23 @@ export async function setNewUser(req, res) {
         res.status(201).json({ message: 'User added', users });
     } catch (err) {
         res.status(500).send('Error saving user');
+        console.log('worning !! - server error: ', err);
     }
 }
 export async function getUserByID(req, res) {
-    const index = parseInt(req.params.index || 0);
+    const idParam = parseInt(req.params.id || 0);
     try {
         const data = await fs.readFile(file, 'utf-8');
         const users = data ? JSON.parse(data) : [];
-        if (users[index] !== undefined) {
-            res.status(200).json(users[index]);
+        for (let i = 0; i < users.length; i++) {
+            if (users[i].getId() == idParam) {
+                res.status(200).json(users[index]);
+            }
         }
-        else {
-            res.status(404).json({ msg: 'User not found' });
-        }
-
+        res.status(404).json({ msg: 'id - User not found' });
     } catch (err) {
         res.status(500).send('Error reading users');
+        console.log('worning !! - server error: ', err);
     }
 
 }
@@ -69,6 +71,7 @@ export async function updateUserByID(req, res) { //updateName
         res.status(200).json({ message: 'User updated', users });
     } catch {
         res.status(500).send('Error updating user');
+        console.log('worning !! - server error: ', err);
     }
 }
 export async function deleteUserByID(req, res) {
@@ -85,5 +88,6 @@ export async function deleteUserByID(req, res) {
         res.status(200).json({ message: 'User deleted', users });
     } catch {
         res.status(500).send('Error deleting user');
+        console.log('worning !! - server error: ', err);
     }
 }
