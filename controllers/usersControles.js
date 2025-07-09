@@ -1,18 +1,86 @@
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const file = path.join(__dirname, '../data/users.txt');
+
 
 import express from "express";
 
-export function getAllUsers(req,res){
-    
+export async function getAllUsers(req, res) {
+    try {
+        const data = await fs.readFile(file, 'utf-8');
+        const users = data ? JSON.parse(data) : [];
+        res.status(200).json(users);
+    } catch (err) {
+        res.status(500).send('Error reading users');
+    }
 }
-export function addNewUser(req,res){
-    
+
+export async function addNewUser(req, res) {
+    const username = req.body.name;
+    if (!username) return res.status(400).send('Name is required');
+
+    try {
+        const data = await fs.readFile(file, 'utf-8');
+        const users = data ? JSON.parse(data) : [];
+        users.push(username);
+        await fs.writeFile(file, JSON.stringify(users));
+        res.status(201).json({ message: 'User added', users });
+    } catch (err) {
+        res.status(500).send('Error saving user');
+    }
 }
-export function getUserByID(req,res){
+export async function getUserByID(req, res) {
+    const index = parseInt(req.params.index || 0);
+    try {
+        const data = await fs.readFile(file, 'utf-8');
+        const users = data ? JSON.parse(data) : [];
+        if(users[index] !== undefined){
+            res.status(200).json(users[index]);
+        }
+        else{
+            res.status(404).json({msg: 'User not found'});
+        }
+        
+    } catch (err) {
+        res.status(500).send('Error reading users');
+    }
 
 }
-export function updateUserByID(req,res){
 
+export async function updateUserByID(req, res) { //updateName
+    const index = parseInt(req.params.index || 0);
+    const { name } = req.body;
+    if (!name) return res.status(400).send('Name is required');
+
+    try {
+        const data = await fs.readFile(file, 'utf-8');
+        const users = JSON.parse(data);
+        if (index < 0 || index >= users.length) {
+            return res.status(404).send('User not found');
+        }
+        users[index] = name;
+        await fs.writeFile(file, JSON.stringify(users));
+        res.status(200).json({ message: 'User updated', users });
+    } catch {
+        res.status(500).send('Error updating user');
+    }
 }
-export function deleteUserByID(req,res){
+export async function deleteUserByID(req, res) {
+    const index = parseInt(req.params.index);
 
+    try {
+        const data = await fs.readFile(file, 'utf-8');
+        const users = JSON.parse(data);
+        if (index < 0 || index >= users.length) {
+            return res.status(404).send('User not found');
+        }
+        users.splice(index, 1);
+        await fs.writeFile(file, JSON.stringify(users));
+        res.status(200).json({ message: 'User deleted', users });
+    } catch {
+        res.status(500).send('Error deleting user');
+    }
 }
