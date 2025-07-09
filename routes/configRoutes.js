@@ -3,7 +3,7 @@ import greetRoutes from "./greetRoutes.js";
 
 export default function configRoutes(app){
     app.use('/greet' , greetRoutes );
-    // app.use('/users')
+    app.use('/users')
     app.use((req,res) =>{ // כל ניתוב שאינו קיים - יכנס לפה 
         res.status(404).json({msg : 'Route not found'})
     });

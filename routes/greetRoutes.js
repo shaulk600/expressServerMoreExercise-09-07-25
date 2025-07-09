@@ -1,11 +1,10 @@
 import express from "express";
+import { responseMessage } from "../controllers/greetControles.js";
 
 //זה בעצם אומר לו - מעכשיו אתה מתמקד בנתיב הזה בלבד
 // זה מחזיר לו מופע של route חדש
 const router = express.Router();
 
-router.get('/' , (req,res)=>{
-    res.json({msg: 'hello from /greet'})
-})
+router.get('/' , responseMessage);
 
 export default router;
