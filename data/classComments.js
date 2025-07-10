@@ -1,23 +1,22 @@
-
-export class User {
-    constructor(id, name) {
+class Comment{
+    constructor(id,text){
         this.id = id;
-        this.name = name;
+        this.text = text;
     }
     getId() {
         return this.id;
     }
-    getName() {
-        return this.name;
+    getText() {
+        return this.text;
     }
     setId(value="") {
         if (value!=="") {
             this.id = value;
         }
     }
-    setName(value="") {
+    setText(value="") {
         if (value!=="") {
-            this.name = value;
+            this.text = value;
         }
     }
 }
